@@ -65,7 +65,7 @@ curl --ssl-no-revoke "https://www.instagram.com/graphql/query/" \
 11. Open the text where you copied over the cURL when you did the blocking. Do these things:
 - Search for **x-fb-lsd** and note the value
 - Search for **av=** and note the value
-- Search for **s=** and note the value
+- Search for **_s=** and note the value
 - Search for **hsi=** and note the value
 - Search for **fb_dtsg=** and note the value
 - Search for **jazoest=** and note the value
@@ -94,9 +94,11 @@ Triple dots are representing the rest of the text within that long part. Anyways
 
 14. Optional: Go to ChatGPT, copy the command from step 8 that you replaced the parts of and ask it to make it single line for you :)
 
-15. If you are using a Mac or Linux, open up your terminal. If you are using Windows, open up PowerShell. **(Windows+R -> type in powershell)**
+15. If you are using a Mac or Linux, open up your terminal. If you are using Windows, open up CMD. **(Windows+R -> type in cmd)**
 
-16. Paste the now properly filled in command from step 8. If you are on Windows/PowerShell, change the initial **curl** word into **curl.exe**.
+***Note***: Using PowerShell instead of CMD worked when I first prepared this guide, but currently using curl.exe instead of curl command directly (which is what you have to do while using PowerShell) causes a lot of problems so we should stick with CMD for now.
+
+16. Paste the now properly filled in command from step 8. (if you are on Windows/PowerShell, change the initial **curl** word into **curl.exe** but again this currently fails as of 13.01.2026)
 
 17. Pray to whichever god you believe in, and press enter.
 
