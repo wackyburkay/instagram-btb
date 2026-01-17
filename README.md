@@ -103,3 +103,7 @@ Triple dots are representing the rest of the text within that long part. Anyways
 17. Pray to whichever god you believe in, and press enter.
 
 18. Go back to your Instagram and look at your blocked list. If the person is there, congrats! If not, either reach out to me, or leave your questions here in the GitHub comments.
+
+Here is a video tutorial of the process, I hope it helps.
+
+[Instagram-BTB Tutorial Video](https://www.youtube.com/watch?v=U3YcldAJFH0)
