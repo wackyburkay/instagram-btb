@@ -9,6 +9,7 @@ Usage:
 """
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -84,6 +85,36 @@ def fix_app_code(output):
         )
 
 
+def set_app_icon(output, extension):
+    """Replace the Mac app's icon with the square version of the icon.
+
+    The converter fills the app's AppIcon from the extension's rounded icons, and
+    macOS shrinks an icon with transparent rounded corners into a grey frame.
+    macOS rounds app icons itself, so give every slot the full-bleed square
+    (resized with sips, which ships with macOS).
+    """
+    square = extension / "icons" / "app-icon-1024.png"
+    iconsets = list(output.glob("**/AppIcon.appiconset"))
+    if not square.exists() or not iconsets:
+        print("Warning: couldn't set the square app icon; the app keeps the converter's icon.")
+        return
+    for iconset in iconsets:
+        contents = json.loads((iconset / "Contents.json").read_text(encoding="utf-8"))
+        for image in contents.get("images", []):
+            points = float(image.get("size", "1024x1024").split("x")[0])
+            scale = float(image.get("scale", "1x").rstrip("x"))
+            pixels = str(round(points * scale))
+            # Fill empty slots too, so every size comes from the square icon.
+            image.setdefault("filename", f"app-icon-{pixels}.png")
+            subprocess.run(
+                ["sips", "-z", pixels, pixels, str(square), "--out", str(iconset / image["filename"])],
+                check=True,
+                stdout=subprocess.DEVNULL,
+            )
+        (iconset / "Contents.json").write_text(json.dumps(contents, indent=2) + "\n", encoding="utf-8")
+        print(f"App icon set from {square.name} ({len(contents.get('images', []))} sizes)")
+
+
 def main():
     ext_default, out_default = default_paths()
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -112,6 +143,7 @@ def main():
         check=True,
     )
     xcodeproj = fix_bundle_ids(args.output)
+    set_app_icon(args.output, args.extension)
     print(f"Xcode project: {xcodeproj}")
     if not args.no_open:
         subprocess.run(["open", str(xcodeproj)], check=True)
