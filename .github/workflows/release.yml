@@ -30,9 +30,9 @@ jobs:
           git archive --format=zip -o "dist/$name.zip" HEAD manifest.json src popup
           # Firefox-based browsers install .xpi files; it's the same zip.
           cp "dist/$name.zip" "dist/$name.xpi"
-          # Safari build: converted into an Xcode project on the user's Mac.
-          python3 scripts/build_safari.py
-          (cd dist/safari && zip -qr "../$name-safari.zip" .)
+          # Safari build plus the script that turns it into an Xcode project on the user's Mac.
+          python3 scripts/build_safari.py --package
+          (cd dist/safari-package && zip -qr "../$name-safari.zip" .)
 
       - name: Publish release
         env:

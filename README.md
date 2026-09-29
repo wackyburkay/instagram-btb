@@ -66,11 +66,13 @@ Safari only loads extensions that are wrapped in a Mac app, so this needs
 [Xcode](https://apps.apple.com/app/xcode/id497799835) (free from the App Store).
 
 1. Extract `instagram-btb-<version>-safari.zip` to a folder.
-2. In Terminal, turn it into an Xcode project:
+2. In Terminal, run the included script from that folder to create the Xcode project:
    ```sh
-   xcrun safari-web-extension-converter ~/Downloads/instagram-btb-safari --macos-only --app-name "Block the Blocker"
+   cd ~/Downloads/instagram-btb-<version>-safari
+   python3 make_xcode_project.py
    ```
-   Replace the path with wherever you extracted the zip. Xcode opens the new project.
+   Replace the path with wherever you extracted the zip. The script creates the project in
+   `xcode/` and opens it in Xcode.
 3. Follow **Building and enabling it in Safari** under Option 2 below, from step 2.
 
 </details>
@@ -125,21 +127,25 @@ the page with a `<script>` tag. Everything else is shared.
    ```sh
    python3 scripts/build_safari.py --xcode
    ```
-   This writes `dist/safari/` and `dist/safari-xcode/`. Open the `.xcodeproj` inside
-   `dist/safari-xcode/` if Xcode doesn't open it for you.
+   This writes `dist/safari/`, creates the Xcode project in `dist/safari-xcode/` with
+   `safari/make_xcode_project.py`, and opens it in Xcode. The script also fixes the bundle
+   IDs Apple's converter generates, which otherwise make the build fail with "Embedded
+   binary's bundle identifier is not prefixed with the parent app's bundle identifier".
 
 *Building and enabling it in Safari:*
 
-2. In Xcode, select the project in the sidebar. Then under **Signing & Capabilities**, for
-   each target set **Team** to your Apple ID or choose **Sign to Run Locally**.
+2. If Xcode reports a signing error, select the project in the sidebar, then under
+   **Signing & Capabilities** set **Team** to your Apple ID or choose **Sign to Run Locally**,
+   for both targets.
 3. Press **Cmd+R** (Product > Run). A small "Block the Blocker" app opens, which you can
    close.
 4. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
 5. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
    every time it quits, so repeat this step after restarting Safari.
-6. In **Settings > Extensions**, turn on **Block the Blocker** and allow it on
-   www.instagram.com.
-7. After changing the code, run the build script again and press **Cmd+R** in Xcode.
+6. In **Settings > Extensions**, turn on **Block the Blocker**.
+7. Open instagram.com, click the extension's icon in the toolbar, and choose
+   **Always Allow on This Website**.
+8. After changing the code, run the build script again and press **Cmd+R** in Xcode.
 
 </details>
 
@@ -174,7 +180,7 @@ also works. Using external websites sends the username to those sites.
 | `src/page.js` | Runs in Instagram's page context. Reads `csrftoken`/`ds_user_id` from cookies, finds `fb_dtsg`, `lsd`, `__hsi`, `__spin_*` from the page (and from Instagram's own GraphQL traffic), computes `jazoest`, and sends the `usePolarisBlockManyMutation` request. |
 | `src/bridge.js` | Content script that relays messages between the popup and `page.js`. |
 | `popup/` | The toolbar popup: enter a username or ID, confirm, block. |
-| `safari/inject.js`, `scripts/build_safari.py` | Safari build only: loads `page.js` into the page, since Safari lacks `"world": "MAIN"`. |
+| `safari/`, `scripts/build_safari.py` | Safari build only. `inject.js` loads `page.js` into the page, since Safari lacks `"world": "MAIN"`. `make_xcode_project.py` wraps the build in an Xcode project with matching bundle IDs. |
 
 Instagram changes the block mutation's `doc_id` from time to time. The extension ships with
 a known one (`9575321849242740`). Whenever you block anyone the normal way on instagram.com,
