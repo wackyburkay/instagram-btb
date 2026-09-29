@@ -1,10 +1,142 @@
-# Instagram: Block the Blocker (extension)
+# Instagram: Block the Blocker
 
-A browser extension that automates the manual guide in
-[wackyburkay/instagram-btb](https://github.com/wackyburkay/instagram-btb): it blocks an
-account that has already blocked you, using your own logged-in Instagram session.
+A browser extension that blocks an Instagram account that has already blocked you, using
+your own logged-in Instagram session.
 
 No servers and no copy-pasting cookies. Everything runs inside your Instagram tab.
+
+## Install
+
+The extension isn't on any extension store, so you load it into your browser yourself.
+Pick one of the two options below.
+
+<details>
+<summary><b>Option 1: Download a ready-made package</b> (no code needed)</summary>
+
+<br>
+
+1. Go to the [latest release](https://github.com/wackyburkay/instagram-btb/releases/latest).
+2. Under **Assets**, download `instagram-btb-<version>.zip` (Chrome, Edge, Brave, Opera) or
+   `instagram-btb-<version>.xpi` (Firefox, Floorp and other Firefox-based browsers).
+3. Follow the steps for your browser below.
+
+**Chrome, Edge, Brave**
+
+1. Extract the `.zip` file to a folder you'll keep. The browser loads the extension from
+   that folder, so don't delete it afterwards.
+2. Open the extensions page: `chrome://extensions` (Chrome), `edge://extensions` (Edge) or
+   `brave://extensions` (Brave).
+3. Turn on **Developer mode**.
+4. Click **Load unpacked** and select the extracted folder, the one with `manifest.json` in it.
+
+**Opera**
+
+1. Extract the `.zip` file to a folder you'll keep.
+2. Go to `opera://extensions` and turn on **Developer mode** (top right).
+3. Click **Load unpacked** and select the extracted folder.
+
+**Floorp**
+
+1. Go to `about:addons`, click the gear icon, and choose **Install Add-on From File...**.
+2. Select the `.xpi` file and confirm.
+3. If Floorp refuses because the add-on isn't signed, go to `about:config`, set
+   `xpinstall.signatures.required` to `false`, and try again. If it still refuses, use the
+   temporary method under **Firefox** below.
+
+**Firefox**
+
+Regular Firefox only installs unsigned extensions temporarily. They are removed when you
+close the browser, so you'll need to repeat this each time.
+
+1. Go to `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on...** and select the `.xpi` file.
+
+Firefox Developer Edition, Nightly and ESR can install it permanently: set
+`xpinstall.signatures.required` to `false` in `about:config`, then use the Floorp steps above.
+
+**All Firefox-based browsers:** in `about:addons`, open the extension, go to **Permissions**,
+and allow access to instagram.com, cdninstagram.com and fbcdn.net. The last two are
+Instagram's image servers and are only used to show profile pictures in the popup.
+
+**Safari**
+
+Not supported yet. See the Safari section under Option 2.
+
+</details>
+
+<details>
+<summary><b>Option 2: Load it from the source code</b> (for developers)</summary>
+
+<br>
+
+Clone the repository:
+
+```sh
+git clone https://github.com/wackyburkay/instagram-btb.git
+```
+
+Or download it with **Code > Download ZIP** on the repository page and extract it. The
+extension's root is the folder that contains `manifest.json`. To update later, run
+`git pull` and reload the extension.
+
+**Chrome, Edge, Brave**
+
+1. Open `chrome://extensions`, `edge://extensions` or `brave://extensions`.
+2. Turn on **Developer mode**.
+3. Click **Load unpacked** and select the repository folder.
+4. After changing the code, click the reload icon on the extension's card, then reload the
+   Instagram tab.
+
+**Opera**
+
+1. Go to `opera://extensions` and turn on **Developer mode** (top right).
+2. Click **Load unpacked** and select the repository folder.
+
+**Firefox, Floorp and other Firefox-based browsers (version 128 or newer)**
+
+1. Go to `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on...** and select `manifest.json` in the repository folder.
+3. In `about:addons`, open the extension, go to **Permissions**, and allow access to
+   instagram.com, cdninstagram.com and fbcdn.net.
+4. After changing the code, click **Reload** on the extension in `about:debugging`, then
+   reload the Instagram tab.
+
+Temporary add-ons are removed when the browser closes. For a permanent install, build the
+`.xpi` as described under **Releases** below and follow the Floorp steps in Option 1.
+
+**Safari**
+
+Not supported yet. The extension runs `src/page.js` inside Instagram's own page through
+`"world": "MAIN"` in `manifest.json`, and Safari doesn't support that key in the manifest.
+Getting it to work would mean injecting `page.js` from `bridge.js` instead, then converting
+the extension with Xcode's `safari-web-extension-converter` on a Mac. Contributions are
+welcome.
+
+</details>
+
+After installing, open or **reload** instagram.com, log in, and click the extension icon.
+
+## Use
+
+1. On any instagram.com page, click the extension icon.
+2. Enter `@username` or a numeric user ID and click **Find**.
+3. Check the account shown and click **Block this account**.
+4. Confirm under **Settings > Blocked accounts**.
+
+### Finding a user ID yourself
+
+If the lookup fails, you can enter the numeric user ID instead. The popup has these steps
+under **How do I find someone's user ID?**:
+
+1. Open a private window (`Ctrl+Shift+P` in Firefox or Floorp, `Ctrl+Shift+N` in Chrome or Edge).
+2. Go to `instagram.com/<username>/`. You don't need to log in.
+3. Press `Ctrl+U` to view the page source.
+4. Press `Ctrl+F`, search for `profile_id`, and copy the number after it, for example
+   `"profile_id":"25025320"`.
+5. Paste it into the popup and click **Find**.
+
+A lookup site such as [commentpicker.com](https://commentpicker.com/instagram-user-id.php)
+also works. Using external websites sends the username to those sites.
 
 ## How it works
 
@@ -29,7 +161,7 @@ popup tries these in order:
 3. **The logged-out profile page.** This is the step that finds accounts that blocked you.
    The extension loads `instagram.com/<username>/` without cookies, the same page a
    private window shows, and reads the ID from the data embedded in it
-   (`"xig_user_by_username":{"pk":"…","username":"…"}`). Blocks only apply to your
+   (`"xig_user_by_username":{"pk":"...","username":"..."}`). Blocks only apply to your
    account, so they don't affect this page. The ID only counts if it sits next to the
    username you entered.
 
@@ -38,42 +170,17 @@ required), which is why step 3 reads the page instead.
 
 **Lookup details** under the result shows what each method returned.
 
-### Finding a user ID yourself
+### Releases
 
-If the lookup fails, you can enter the numeric user ID instead. The popup has these steps
-under **How do I find someone's user ID?**:
+Pushing a tag like `v0.1.0` runs [.github/workflows/release.yml](.github/workflows/release.yml),
+which packages `manifest.json`, `src/` and `popup/` and publishes them as a GitHub release
+with a `.zip` and an identical `.xpi`. The tag has to match `version` in `manifest.json`.
 
-1. Open a private window (`Ctrl+Shift+P` in Floorp/Firefox, `Ctrl+Shift+N` in Edge/Chrome).
-2. Go to `instagram.com/<username>/`. You don't need to log in.
-3. Press `Ctrl+U` to view the page source.
-4. Press `Ctrl+F`, search for `profile_id`, and copy the number after it, for example
-   `"profile_id":"25025320"`.
-5. Paste it into the popup and click **Find**.
+To build the same package locally:
 
-A lookup site such as [commentpicker.com](https://commentpicker.com/instagram-user-id.php)
-also works. Using external websites sends the username to those sites.
-
-## Install (unpacked, for development)
-
-**Chrome / Edge / Opera / Brave**
-1. Go to `chrome://extensions` and turn on **Developer mode**.
-2. Click **Load unpacked** and select this folder.
-
-**Firefox 128+ and Firefox-based browsers (Floorp, LibreWolf, Zen…)**
-1. Go to `about:debugging#/runtime/this-firefox`.
-2. Click **Load Temporary Add-on…** and pick `manifest.json`.
-3. In `about:addons` → the extension → **Permissions**, allow access to instagram.com,
-   cdninstagram.com and fbcdn.net. The last two are Instagram's image servers and are only
-   used to show profile pictures in the popup.
-
-Then open or **reload** instagram.com, log in, and click the extension icon.
-
-## Use
-
-1. On any instagram.com page, click the extension icon.
-2. Enter `@username` or a numeric user ID and click **Find**.
-3. Check the account shown and click **Block this account**.
-4. Confirm under **Settings → Blocked accounts**.
+```sh
+git archive --format=zip -o instagram-btb.zip HEAD manifest.json src popup
+```
 
 ## Notes
 
@@ -84,7 +191,7 @@ Then open or **reload** instagram.com, log in, and click the extension icon.
 
 ## Manual process (original guide)
 
-The extension automates the manual process below. It is kept here unchanged as reference for anyone building on it.
+The extension automates the manual process below. It is kept here as reference for anyone building on it.
 
 <details>
 <summary>Show the original manual guide</summary>
