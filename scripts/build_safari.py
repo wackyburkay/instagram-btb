@@ -37,10 +37,6 @@ def safari_manifest(manifest):
 
     # inject.js loads page.js by URL, so the page must be allowed to fetch it.
     manifest["web_accessible_resources"] = [{"resources": ["src/page.js"], "matches": [INSTAGRAM]}]
-    # Lets the popup read the active tab's URL to check it's on Instagram.
-    hosts = manifest.setdefault("host_permissions", [])
-    if INSTAGRAM not in hosts:
-        hosts.insert(0, INSTAGRAM)
     return manifest
 
 
