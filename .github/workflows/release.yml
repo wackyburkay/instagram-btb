@@ -53,6 +53,10 @@ jobs:
         run: |
           python3 scripts/build_safari.py
           python3 safari/make_xcode_project.py dist/safari --output dist/safari-xcode --no-open
+          # The app's "Open Safari Settings" button only works if its code names the real extension ID.
+          grep -rq 'extensionBundleIdentifier = "com.wackyburkay.instagram-btb.Extension"' \
+            --include='*.swift' dist/safari-xcode \
+            || { echo "::error::App code doesn't reference the extension's bundle ID"; exit 1; }
 
       - name: Build app
         run: |

@@ -56,7 +56,32 @@ def fix_bundle_ids(output):
         return "PRODUCT_BUNDLE_IDENTIFIER = " + (EXTENSION_ID if old in extension_ids else BUNDLE_ID) + ";"
 
     pbxproj.write_text(pattern.sub(replace, text), encoding="utf-8")
+    fix_app_code(output)
     return pbxproj.parent
+
+
+def fix_app_code(output):
+    """Point the app's Swift code at the renamed extension.
+
+    The generated app calls SFSafariApplication.showPreferencesForExtension with a
+    hard-coded extensionBundleIdentifier. If it doesn't match the extension's
+    real ID, the app's "Quit and Open Safari Settings" button silently does nothing.
+    """
+    pattern = re.compile(r'(let extensionBundleIdentifier\s*=\s*)"([^"]*)"')
+    fixed = False
+    for swift in output.glob("**/*.swift"):
+        text = swift.read_text(encoding="utf-8")
+        match = pattern.search(text)
+        if not match:
+            continue
+        print(f"{swift.name}: extensionBundleIdentifier {match.group(2)} -> {EXTENSION_ID}")
+        swift.write_text(pattern.sub(lambda m: m.group(1) + '"' + EXTENSION_ID + '"', text), encoding="utf-8")
+        fixed = True
+    if not fixed:
+        print(
+            "Warning: no extensionBundleIdentifier found in the app's Swift code. If the app's "
+            "Safari Settings button does nothing, set it to " + EXTENSION_ID + " in ViewController.swift."
+        )
 
 
 def main():
