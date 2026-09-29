@@ -1,21 +1,25 @@
 name: Release
 
-# Push a tag matching manifest.json's version (e.g. v0.1.0) to publish a release
-# with the packaged extension attached.
+# Pushing a tag that matches manifest.json's version (e.g. v0.1.0) publishes a
+# release with every package attached. Pull requests run the same builds
+# without publishing, so packaging problems show up before a release.
 on:
   push:
     tags: ["v*"]
+  pull_request:
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  packages:
+    name: Browser packages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Check tag matches manifest version
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           version="v$(jq -r .version manifest.json)"
           if [ "$version" != "$GITHUB_REF_NAME" ]; then
@@ -25,16 +29,75 @@ jobs:
 
       - name: Package extension
         run: |
-          mkdir dist
-          name="instagram-btb-$GITHUB_REF_NAME"
-          git archive --format=zip -o "dist/$name.zip" HEAD manifest.json src popup
+          mkdir -p dist/out
+          name="instagram-btb-v$(jq -r .version manifest.json)"
+          git archive --format=zip -o "dist/out/$name.zip" HEAD manifest.json src popup
           # Firefox-based browsers install .xpi files; it's the same zip.
-          cp "dist/$name.zip" "dist/$name.xpi"
+          cp "dist/out/$name.zip" "dist/out/$name.xpi"
+          # Safari build plus the script that turns it into an Xcode project on the user's Mac.
+          python3 scripts/build_safari.py --package
+          (cd dist/safari-package && zip -qr "../out/$name-safari.zip" .)
 
-      - name: Publish release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist/out/
+
+  safari-app:
+    name: Safari app
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Safari extension and Xcode project
+        run: |
+          python3 scripts/build_safari.py
+          python3 safari/make_xcode_project.py dist/safari --output dist/safari-xcode --no-open
+          # The app's "Open Safari Settings" button only works if its code names the real extension ID.
+          grep -rq 'extensionBundleIdentifier = "com.wackyburkay.instagram-btb.Extension"' \
+            --include='*.swift' dist/safari-xcode \
+            || { echo "::error::App code doesn't reference the extension's bundle ID"; exit 1; }
+
+      - name: Build app
+        run: |
+          project=$(find dist/safari-xcode -name '*.xcodeproj' -maxdepth 3 | head -1)
+          # "-" signs ad hoc ("Sign to Run Locally"), which Safari accepts once
+          # Develop > Allow Unsigned Extensions is on. No Apple account involved.
+          xcodebuild -project "$project" -scheme "Block the Blocker" -configuration Release \
+            -derivedDataPath dist/xcode-build \
+            CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= \
+            build
+
+      - name: Zip app
+        run: |
+          mkdir -p dist/out
+          version=$(python3 -c "import json; print(json.load(open('manifest.json'))['version'])")
+          app="dist/xcode-build/Build/Products/Release/Block the Blocker.app"
+          codesign --verify --deep --strict "$app"
+          # ditto keeps the bundle's permissions and structure intact.
+          ditto -c -k --keepParent "$app" "dist/out/instagram-btb-v$version-safari-app.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: safari-app
+          path: dist/out/
+
+  publish:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [packages, safari-app]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" dist/* \
+            --repo "$GITHUB_REPOSITORY" \
             --title "$GITHUB_REF_NAME" \
             --generate-notes

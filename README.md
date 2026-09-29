@@ -16,8 +16,10 @@ Pick one of the two options below.
 <br>
 
 1. Go to the [latest release](https://github.com/wackyburkay/instagram-btb/releases/latest).
-2. Under **Assets**, download `instagram-btb-<version>.zip` (Chrome, Edge, Brave, Opera) or
-   `instagram-btb-<version>.xpi` (Firefox, Floorp and other Firefox-based browsers).
+2. Under **Assets**, download the file for your browser:
+   - `instagram-btb-<version>.zip` for Chrome, Edge, Brave and Opera
+   - `instagram-btb-<version>.xpi` for Firefox, Floorp and other Firefox-based browsers
+   - `instagram-btb-<version>-safari-app.zip` for Safari
 3. Follow the steps for your browser below.
 
 **Chrome, Edge, Brave**
@@ -58,9 +60,45 @@ Firefox Developer Edition, Nightly and ESR can install it permanently: set
 and allow access to instagram.com, cdninstagram.com and fbcdn.net. The last two are
 Instagram's image servers and are only used to show profile pictures in the popup.
 
-**Safari**
+**Safari (macOS)**
 
-Not supported yet. See the Safari section under Option 2.
+Safari extensions come inside a small Mac app. It isn't signed by Apple, so macOS and Safari
+both ask you to allow it once.
+
+1. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
+2. Go to **Safari > Settings > Developer** and turn on **Allow unsigned extensions**. On
+   older Safari versions it's **Develop > Allow Unsigned Extensions** in the menu bar. Do
+   this before step 4: while it's off, Safari hides the extension.
+3. Double-click `instagram-btb-<version>-safari-app.zip` to extract **Block the Blocker.app**,
+   and move it to your **Applications** folder.
+4. Open the app. The first time, macOS says *"Apple could not verify 'Block the Blocker' is
+   free of malware..."*. That's expected: the app isn't notarized, because that needs a paid
+   Apple developer account. To allow it:
+   1. Click **Done**.
+   2. Go to **System Settings > Privacy & Security** and scroll down to **Security**.
+   3. Next to the message about Block the Blocker, click **Open Anyway**, confirm, and enter
+      your password if asked. The button only shows for about an hour after you tried to
+      open the app.
+
+   Alternatively, run this in Terminal, then open the app normally:
+   ```sh
+   xattr -dr com.apple.quarantine "/Applications/Block the Blocker.app"
+   ```
+5. In the app, click **Quit and Open Safari Settings**. If Safari's settings don't open, open
+   them yourself: **Safari > Settings > Extensions**.
+6. Turn on **Block the Blocker**.
+7. Open instagram.com, click the extension's icon in the toolbar, and choose
+   **Always Allow on This Website**.
+
+> **Extension gone after restarting Safari?** Safari turns off **Allow unsigned extensions**
+> every time it quits and hides the extension until you turn it back on. It's still
+> installed: go to **Safari > Settings > Developer**, turn **Allow unsigned extensions** on
+> again, and it reappears.
+
+If you'd rather build the app yourself with Xcode, download
+`instagram-btb-<version>-safari.zip` instead, extract it, and run
+`python3 make_xcode_project.py` in that folder. It creates the Xcode project and opens it.
+Then follow **Building and enabling it in Safari** under Option 2 below, from step 2.
 
 </details>
 
@@ -104,13 +142,39 @@ extension's root is the folder that contains `manifest.json`. To update later, r
 Temporary add-ons are removed when the browser closes. For a permanent install, build the
 `.xpi` as described under **Releases** below and follow the Floorp steps in Option 1.
 
-**Safari**
+**Safari (macOS, needs Xcode)**
 
-Not supported yet. The extension runs `src/page.js` inside Instagram's own page through
-`"world": "MAIN"` in `manifest.json`, and Safari doesn't support that key in the manifest.
-Getting it to work would mean injecting `page.js` from `bridge.js` instead, then converting
-the extension with Xcode's `safari-web-extension-converter` on a Mac. Contributions are
-welcome.
+Safari doesn't support `"world": "MAIN"` in the manifest, so it gets its own build:
+`scripts/build_safari.py` swaps that entry for `safari/inject.js`, which loads `page.js` into
+the page with a `<script>` tag. Everything else is shared.
+
+1. In the repository folder, build the Safari version and its Xcode project:
+   ```sh
+   python3 scripts/build_safari.py --xcode
+   ```
+   This writes `dist/safari/`, creates the Xcode project in `dist/safari-xcode/` with
+   `safari/make_xcode_project.py`, and opens it in Xcode. The script also fixes the bundle
+   IDs Apple's converter generates, which otherwise make the build fail with "Embedded
+   binary's bundle identifier is not prefixed with the parent app's bundle identifier".
+
+*Building and enabling it in Safari:*
+
+2. If Xcode reports a signing error, select the project in the sidebar, then under
+   **Signing & Capabilities** set **Team** to your Apple ID or choose **Sign to Run Locally**,
+   for both targets.
+3. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
+4. Go to **Safari > Settings > Developer** and turn on **Allow unsigned extensions** (on
+   older Safari versions, **Develop > Allow Unsigned Extensions** in the menu bar). While
+   it's off, Safari hides the extension.
+5. In Xcode, press **Cmd+R** (Product > Run). A small "Block the Blocker" app opens. Click
+   **Quit and Open Safari Settings**, or open **Safari > Settings > Extensions** yourself.
+6. Turn on **Block the Blocker**.
+7. Open instagram.com, click the extension's icon in the toolbar, and choose
+   **Always Allow on This Website**.
+8. After changing the code, run the build script again and press **Cmd+R** in Xcode.
+
+Safari turns off **Allow unsigned extensions** every time it quits, which hides the
+extension until you turn it back on in **Safari > Settings > Developer**.
 
 </details>
 
@@ -145,6 +209,7 @@ also works. Using external websites sends the username to those sites.
 | `src/page.js` | Runs in Instagram's page context. Reads `csrftoken`/`ds_user_id` from cookies, finds `fb_dtsg`, `lsd`, `__hsi`, `__spin_*` from the page (and from Instagram's own GraphQL traffic), computes `jazoest`, and sends the `usePolarisBlockManyMutation` request. |
 | `src/bridge.js` | Content script that relays messages between the popup and `page.js`. |
 | `popup/` | The toolbar popup: enter a username or ID, confirm, block. |
+| `safari/`, `scripts/build_safari.py` | Safari build only. `inject.js` loads `page.js` into the page, since Safari lacks `"world": "MAIN"`. `make_xcode_project.py` wraps the build in an Xcode project with matching bundle IDs. |
 
 Instagram changes the block mutation's `doc_id` from time to time. The extension ships with
 a known one (`9575321849242740`). Whenever you block anyone the normal way on instagram.com,
@@ -174,7 +239,10 @@ required), which is why step 3 reads the page instead.
 
 Pushing a tag like `v0.1.0` runs [.github/workflows/release.yml](.github/workflows/release.yml),
 which packages `manifest.json`, `src/` and `popup/` and publishes them as a GitHub release
-with a `.zip` and an identical `.xpi`. The tag has to match `version` in `manifest.json`.
+with a `.zip` and an identical `.xpi`, plus the Safari build as `-safari.zip`. A macOS runner
+also builds the Safari app with Xcode, signed ad hoc ("Sign to Run Locally"), and attaches
+it as `-safari-app.zip`. The tag has to match `version` in `manifest.json`. Pull requests
+run the same builds without publishing anything.
 
 To build the same package locally:
 
