@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Instagram: Block the Blocker",
+  "version": "0.1.0",
+  "description": "Block an Instagram account that has already blocked you, from your own logged-in session.",
+  "action": {
+    "default_title": "Block the Blocker",
+    "default_popup": "popup/popup.html"
+  },
+  "host_permissions": [
+    "https://*.cdninstagram.com/*",
+    "https://*.fbcdn.net/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": ["src/page.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": ["src/bridge.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "instagram-btb@wackyburkay",
+      "strict_min_version": "128.0"
+    }
+  }
+}

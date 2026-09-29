@@ -1,10 +1,101 @@
+# Instagram: Block the Blocker (extension)
+
+A browser extension that automates the manual guide in
+[wackyburkay/instagram-btb](https://github.com/wackyburkay/instagram-btb): it blocks an
+account that has already blocked you, using your own logged-in Instagram session.
+
+No servers and no copy-pasting cookies. Everything runs inside your Instagram tab.
+
+## How it works
+
+| File | Role |
+|---|---|
+| `src/page.js` | Runs in Instagram's page context. Reads `csrftoken`/`ds_user_id` from cookies, finds `fb_dtsg`, `lsd`, `__hsi`, `__spin_*` from the page (and from Instagram's own GraphQL traffic), computes `jazoest`, and sends the `usePolarisBlockManyMutation` request. |
+| `src/bridge.js` | Content script that relays messages between the popup and `page.js`. |
+| `popup/` | The toolbar popup: enter a username or ID, confirm, block. |
+
+Instagram changes the block mutation's `doc_id` from time to time. The extension ships with
+a known one (`9575321849242740`). Whenever you block anyone the normal way on instagram.com,
+it saves the current `doc_id` and uses that from then on. The popup footer shows which one
+is in use.
+
+### Finding the user ID
+
+If an account has blocked you, Instagram hides it from lookups made with your session. The
+popup tries these in order:
+
+1. Profile lookup with your session (works for accounts that haven't blocked you).
+2. Instagram search with your session.
+3. **The logged-out profile page.** This is the step that finds accounts that blocked you.
+   The extension loads `instagram.com/<username>/` without cookies, the same page a
+   private window shows, and reads the ID from the data embedded in it
+   (`"xig_user_by_username":{"pk":"…","username":"…"}`). Blocks only apply to your
+   account, so they don't affect this page. The ID only counts if it sits next to the
+   username you entered.
+
+Instagram's logged-out API (`web_profile_info` without cookies) answers 401 (login
+required), which is why step 3 reads the page instead.
+
+**Lookup details** under the result shows what each method returned.
+
+### Finding a user ID yourself
+
+If the lookup fails, you can enter the numeric user ID instead. The popup has these steps
+under **How do I find someone's user ID?**:
+
+1. Open a private window (`Ctrl+Shift+P` in Floorp/Firefox, `Ctrl+Shift+N` in Edge/Chrome).
+2. Go to `instagram.com/<username>/`. You don't need to log in.
+3. Press `Ctrl+U` to view the page source.
+4. Press `Ctrl+F`, search for `profile_id`, and copy the number after it, for example
+   `"profile_id":"25025320"`.
+5. Paste it into the popup and click **Find**.
+
+A lookup site such as [commentpicker.com](https://commentpicker.com/instagram-user-id.php)
+also works. Using external websites sends the username to those sites.
+
+## Install (unpacked, for development)
+
+**Chrome / Edge / Opera / Brave**
+1. Go to `chrome://extensions` and turn on **Developer mode**.
+2. Click **Load unpacked** and select this folder.
+
+**Firefox 128+ and Firefox-based browsers (Floorp, LibreWolf, Zen…)**
+1. Go to `about:debugging#/runtime/this-firefox`.
+2. Click **Load Temporary Add-on…** and pick `manifest.json`.
+3. In `about:addons` → the extension → **Permissions**, allow access to instagram.com,
+   cdninstagram.com and fbcdn.net. The last two are Instagram's image servers and are only
+   used to show profile pictures in the popup.
+
+Then open or **reload** instagram.com, log in, and click the extension icon.
+
+## Use
+
+1. On any instagram.com page, click the extension icon.
+2. Enter `@username` or a numeric user ID and click **Find**.
+3. Check the account shown and click **Block this account**.
+4. Confirm under **Settings → Blocked accounts**.
+
+## Notes
+
+- This uses Instagram's private web API, the same one the web app uses. It can break
+  without warning when Instagram changes it.
+- It blocks one account per click on purpose. Automating Instagram is against its terms,
+  so use this at your own risk.
+
+## Manual process (original guide)
+
+The extension automates the manual process below. It is kept here unchanged as reference for anyone building on it.
+
+<details>
+<summary>Show the original manual guide</summary>
+
 # Instagram: Block the Blocker!
 
 ## A detailed guide to block someone who blocked you previously on Instagram.
 
 Up until couple months ago, it was possible to block someone who blocked you on Instagram by simply tagging their username inside a comment under any post and going to their profile using that tag. This method would make the normally invisible menu button on their profile visible, and allow you to block them. This no longer works as it got patched, so we need to do some coding wizardry that anyone can replicate.
 
-All credit goes to a Reddit user named [**Exotic_Mall7928**](https://www.reddit.com/r/Instagram/comments/1kapa20/comment/n1uzxz2/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button), who came up with this method. I am creating this document to make the steps more clear to non-developer users. I am planning to make this into a full browser extension which will add a "Block a user that blocked you" button to your blocked users page on Instagram, but that is for far future.
+All credit goes to a Reddit user named [**Exotic_Mall7928**](https://www.reddit.com/r/Instagram/comments/1kapa20/comment/n1uzxz2/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button), who came up with this method. I am creating this document to make the steps more clear to non-developer users. This process has since been turned into a browser extension, described at the top of this README.
 
 ### Requirements
 
@@ -107,3 +198,6 @@ Triple dots are representing the rest of the text within that long part. Anyways
 Here is a video tutorial of the process, I hope it helps.
 
 [Instagram-BTB Tutorial Video](https://www.youtube.com/watch?v=U3YcldAJFH0)
+
+
+</details>

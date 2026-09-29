@@ -1,0 +1,121 @@
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #6b6b6b;
+  --border: #d9d9d9;
+  --accent: #0064e0;
+  --danger: #d0263b;
+  --ok: #1f7a3a;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --fg: #f2f2f2;
+    --muted: #a0a0a5;
+    --border: #3a3a3c;
+    --accent: #4c9aff;
+    --danger: #ff5a6e;
+    --ok: #4cc774;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  width: 340px;
+  margin: 0;
+  padding: 14px 16px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+h1 { font-size: 15px; margin: 0 0 2px; }
+p { margin: 8px 0; }
+label { display: block; margin: 12px 0 4px; font-weight: 600; }
+
+.muted { color: var(--muted); font-size: 12px; }
+.row { display: flex; gap: 6px; }
+
+input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+button {
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.55; cursor: default; }
+button.danger { width: 100%; margin-top: 10px; background: var(--danger); }
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.card img,
+.avatar-fallback {
+  flex: none; /* don't let long names squeeze the avatar into an ellipse */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.card img { object-fit: cover; }
+.avatar-fallback {
+  display: grid;
+  place-items: center;
+  background: var(--border);
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+[hidden] { display: none !important; }
+.card > div:last-child { min-width: 0; }
+#target-name { font-weight: 600; word-break: break-all; }
+
+.badge.warn { color: #b26b00; }
+
+.badge { margin-top: 3px; font-size: 11px; font-weight: 600; color: var(--danger); }
+
+details { margin-top: 10px; }
+summary { cursor: pointer; }
+#id-help summary { color: var(--accent); font-weight: 600; }
+#id-help ol { margin: 6px 0; padding-left: 20px; }
+#id-help li { margin: 4px 0; }
+#id-help a { color: var(--accent); }
+code, kbd {
+  font: 11.5px ui-monospace, "Cascadia Mono", Consolas, monospace;
+  padding: 0 3px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+#help-url { white-space: normal; word-break: break-all; }
+#attempt-list { margin: 4px 0 0; padding-left: 18px; }
+
+#message:empty { display: none; }
+#message.error { color: var(--danger); }
+#message.ok { color: var(--ok); }
+
+footer { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px; }
+footer:empty { display: none; }
