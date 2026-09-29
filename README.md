@@ -1,3 +1,5 @@
+<img src="icons/icon-128.png" alt="" width="96" align="right">
+
 # Instagram: Block the Blocker
 
 A browser extension that blocks an Instagram account that has already blocked you, using
@@ -209,6 +211,7 @@ also works. Using external websites sends the username to those sites.
 | `src/page.js` | Runs in Instagram's page context. Reads `csrftoken`/`ds_user_id` from cookies, finds `fb_dtsg`, `lsd`, `__hsi`, `__spin_*` from the page (and from Instagram's own GraphQL traffic), computes `jazoest`, and sends the `usePolarisBlockManyMutation` request. |
 | `src/bridge.js` | Content script that relays messages between the popup and `page.js`. |
 | `popup/` | The toolbar popup: enter a username or ID, confirm, block. |
+| `icons/`, `scripts/make_icons.py` | The extension icon at every size the browsers and the Safari app use. Run `python3 scripts/make_icons.py` (needs Pillow) to redraw them. |
 | `safari/`, `scripts/build_safari.py` | Safari build only. `inject.js` loads `page.js` into the page, since Safari lacks `"world": "MAIN"`. `make_xcode_project.py` wraps the build in an Xcode project with matching bundle IDs. |
 
 Instagram changes the block mutation's `doc_id` from time to time. The extension ships with
@@ -238,7 +241,7 @@ required), which is why step 3 reads the page instead.
 ### Releases
 
 Pushing a tag like `v0.1.0` runs [.github/workflows/release.yml](.github/workflows/release.yml),
-which packages `manifest.json`, `src/` and `popup/` and publishes them as a GitHub release
+which packages `manifest.json`, `src/`, `popup/` and `icons/` and publishes them as a GitHub release
 with a `.zip` and an identical `.xpi`, plus the Safari build as `-safari.zip`. A macOS runner
 also builds the Safari app with Xcode, signed ad hoc ("Sign to Run Locally"), and attaches
 it as `-safari-app.zip`. The tag has to match `version` in `manifest.json`. Pull requests
@@ -247,7 +250,7 @@ run the same builds without publishing anything.
 To build the same package locally:
 
 ```sh
-git archive --format=zip -o instagram-btb.zip HEAD manifest.json src popup
+git archive --format=zip -o instagram-btb.zip HEAD manifest.json src popup icons
 ```
 
 ## Notes

@@ -49,6 +49,8 @@ def build():
         shutil.rmtree(OUT)
     shutil.copytree(ROOT / "src", OUT / "src")
     shutil.copytree(ROOT / "popup", OUT / "popup")
+    # The converter also builds the Mac app's icon from the largest one listed.
+    shutil.copytree(ROOT / "icons", OUT / "icons")
     shutil.copy2(ROOT / "safari" / "inject.js", OUT / "src" / "inject.js")
 
     manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))

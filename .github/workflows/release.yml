@@ -31,7 +31,7 @@ jobs:
         run: |
           mkdir -p dist/out
           name="instagram-btb-v$(jq -r .version manifest.json)"
-          git archive --format=zip -o "dist/out/$name.zip" HEAD manifest.json src popup
+          git archive --format=zip -o "dist/out/$name.zip" HEAD manifest.json src popup icons
           # Firefox-based browsers install .xpi files; it's the same zip.
           cp "dist/out/$name.zip" "dist/out/$name.xpi"
           # Safari build plus the script that turns it into an Xcode project on the user's Mac.
