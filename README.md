@@ -65,9 +65,13 @@ Instagram's image servers and are only used to show profile pictures in the popu
 Safari extensions come inside a small Mac app. It isn't signed by Apple, so macOS and Safari
 both ask you to allow it once.
 
-1. Double-click `instagram-btb-<version>-safari-app.zip` to extract **Block the Blocker.app**,
+1. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
+2. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
+   every time it quits, so repeat this step after restarting Safari. Do this before step 4:
+   while it's off, Safari hides the extension.
+3. Double-click `instagram-btb-<version>-safari-app.zip` to extract **Block the Blocker.app**,
    and move it to your **Applications** folder.
-2. Open the app. The first time, macOS says *"Apple could not verify 'Block the Blocker' is
+4. Open the app. The first time, macOS says *"Apple could not verify 'Block the Blocker' is
    free of malware..."*. That's expected: the app isn't notarized, because that needs a paid
    Apple developer account. To allow it:
    1. Click **Done**.
@@ -80,12 +84,10 @@ both ask you to allow it once.
    ```sh
    xattr -dr com.apple.quarantine "/Applications/Block the Blocker.app"
    ```
-   You can close the app once it opens.
-3. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
-4. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
-   every time it quits, so repeat this step after restarting Safari.
-5. In **Settings > Extensions**, turn on **Block the Blocker**.
-6. Open instagram.com, click the extension's icon in the toolbar, and choose
+5. In the app, click **Quit and Open Safari Settings**. If Safari's settings don't open, open
+   them yourself: **Safari > Settings > Extensions**.
+6. Turn on **Block the Blocker**.
+7. Open instagram.com, click the extension's icon in the toolbar, and choose
    **Always Allow on This Website**.
 
 If you'd rather build the app yourself with Xcode, download
@@ -155,12 +157,13 @@ the page with a `<script>` tag. Everything else is shared.
 2. If Xcode reports a signing error, select the project in the sidebar, then under
    **Signing & Capabilities** set **Team** to your Apple ID or choose **Sign to Run Locally**,
    for both targets.
-3. Press **Cmd+R** (Product > Run). A small "Block the Blocker" app opens, which you can
-   close.
-4. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
-5. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
-   every time it quits, so repeat this step after restarting Safari.
-6. In **Settings > Extensions**, turn on **Block the Blocker**.
+3. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
+4. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
+   every time it quits, so repeat this step after restarting Safari. While it's off, Safari
+   hides the extension.
+5. In Xcode, press **Cmd+R** (Product > Run). A small "Block the Blocker" app opens. Click
+   **Quit and Open Safari Settings**, or open **Safari > Settings > Extensions** yourself.
+6. Turn on **Block the Blocker**.
 7. Open instagram.com, click the extension's icon in the toolbar, and choose
    **Always Allow on This Website**.
 8. After changing the code, run the build script again and press **Cmd+R** in Xcode.
