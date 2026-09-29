@@ -37,6 +37,10 @@ def safari_manifest(manifest):
 
     # inject.js loads page.js by URL, so the page must be allowed to fetch it.
     manifest["web_accessible_resources"] = [{"resources": ["src/page.js"], "matches": [INSTAGRAM]}]
+    # The converter makes the Mac app icon from the largest icon. macOS rounds app
+    # icons itself, so use the square version there instead of the rounded one.
+    largest = max(manifest["icons"], key=int)
+    manifest["icons"][largest] = "icons/app-icon-1024.png"
     # Lets the popup read the active tab's URL to check it's on Instagram.
     hosts = manifest.setdefault("host_permissions", [])
     if INSTAGRAM not in hosts:

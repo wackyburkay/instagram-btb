@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Draw the extension icon: two opposing white arrows on a red square.
 
-Writes icons/icon-<size>.png for every size the browsers and Safari's app icon
-need. Requires Pillow (pip install pillow).
+Writes icons/icon-<size>.png for every size the browsers need, plus
+icons/app-icon-1024.png, a square version for the Safari Mac app. Requires
+Pillow (pip install pillow).
 
 Usage:
     python3 scripts/make_icons.py
@@ -88,7 +89,8 @@ def fill(polygons, grow=0):
     return mask
 
 
-def draw_master():
+def draw_master(rounded=True):
+    """The icon at CANVAS size. `rounded=False` gives a full-bleed square."""
     scale = CANVAS * 0.34
     body, tail = arrow_shapes()
     shift = (SHIFT, 0.0)
@@ -98,7 +100,7 @@ def draw_master():
     icon = Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0))
     background = Image.new("L", (CANVAS, CANVAS), 0)
     ImageDraw.Draw(background).rounded_rectangle(
-        (0, 0, CANVAS - 1, CANVAS - 1), radius=int(CANVAS * 0.2), fill=255
+        (0, 0, CANVAS - 1, CANVAS - 1), radius=int(CANVAS * 0.2) if rounded else 0, fill=255
     )
     icon.paste(RED, mask=background)
 
@@ -150,7 +152,13 @@ def main():
     master = draw_master()
     for size in SIZES:
         master.resize((size, size), Image.LANCZOS).save(OUT / f"icon-{size}.png", optimize=True)
-    print(f"Wrote {len(SIZES)} icons to {OUT.relative_to(ROOT).as_posix()}/")
+
+    # The Mac app icon. macOS rounds app icons itself; one that already has
+    # transparent corners gets shrunk into a grey frame, so give it a square.
+    draw_master(rounded=False).resize((1024, 1024), Image.LANCZOS).save(
+        OUT / "app-icon-1024.png", optimize=True
+    )
+    print(f"Wrote {len(SIZES) + 1} icons to {OUT.relative_to(ROOT).as_posix()}/")
 
 
 if __name__ == "__main__":
