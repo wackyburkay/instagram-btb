@@ -66,9 +66,9 @@ Safari extensions come inside a small Mac app. It isn't signed by Apple, so macO
 both ask you to allow it once.
 
 1. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
-2. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
-   every time it quits, so repeat this step after restarting Safari. Do this before step 4:
-   while it's off, Safari hides the extension.
+2. Go to **Safari > Settings > Developer** and turn on **Allow unsigned extensions**. On
+   older Safari versions it's **Develop > Allow Unsigned Extensions** in the menu bar. Do
+   this before step 4: while it's off, Safari hides the extension.
 3. Double-click `instagram-btb-<version>-safari-app.zip` to extract **Block the Blocker.app**,
    and move it to your **Applications** folder.
 4. Open the app. The first time, macOS says *"Apple could not verify 'Block the Blocker' is
@@ -89,6 +89,11 @@ both ask you to allow it once.
 6. Turn on **Block the Blocker**.
 7. Open instagram.com, click the extension's icon in the toolbar, and choose
    **Always Allow on This Website**.
+
+> **Extension gone after restarting Safari?** Safari turns off **Allow unsigned extensions**
+> every time it quits and hides the extension until you turn it back on. It's still
+> installed: go to **Safari > Settings > Developer**, turn **Allow unsigned extensions** on
+> again, and it reappears.
 
 If you'd rather build the app yourself with Xcode, download
 `instagram-btb-<version>-safari.zip` instead, extract it, and run
@@ -158,15 +163,18 @@ the page with a `<script>` tag. Everything else is shared.
    **Signing & Capabilities** set **Team** to your Apple ID or choose **Sign to Run Locally**,
    for both targets.
 3. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
-4. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
-   every time it quits, so repeat this step after restarting Safari. While it's off, Safari
-   hides the extension.
+4. Go to **Safari > Settings > Developer** and turn on **Allow unsigned extensions** (on
+   older Safari versions, **Develop > Allow Unsigned Extensions** in the menu bar). While
+   it's off, Safari hides the extension.
 5. In Xcode, press **Cmd+R** (Product > Run). A small "Block the Blocker" app opens. Click
    **Quit and Open Safari Settings**, or open **Safari > Settings > Extensions** yourself.
 6. Turn on **Block the Blocker**.
 7. Open instagram.com, click the extension's icon in the toolbar, and choose
    **Always Allow on This Website**.
 8. After changing the code, run the build script again and press **Cmd+R** in Xcode.
+
+Safari turns off **Allow unsigned extensions** every time it quits, which hides the
+extension until you turn it back on in **Safari > Settings > Developer**.
 
 </details>
 
