@@ -1,6 +1,8 @@
-<img src="icons/icon-128.png" alt="" width="96" align="right">
+<p align="center">
+  <img src="icons/icon-128.png" alt="" width="112">
+</p>
 
-# Instagram: Block the Blocker
+<h1 align="center">Instagram: Block the Blocker</h1>
 
 A browser extension that blocks an Instagram account that has already blocked you, using
 your own logged-in Instagram session.
@@ -211,7 +213,7 @@ also works. Using external websites sends the username to those sites.
 | `src/page.js` | Runs in Instagram's page context. Reads `csrftoken`/`ds_user_id` from cookies, finds `fb_dtsg`, `lsd`, `__hsi`, `__spin_*` from the page (and from Instagram's own GraphQL traffic), computes `jazoest`, and sends the `usePolarisBlockManyMutation` request. |
 | `src/bridge.js` | Content script that relays messages between the popup and `page.js`. |
 | `popup/` | The toolbar popup: enter a username or ID, confirm, block. |
-| `icons/`, `scripts/make_icons.py` | The extension icon at every size the browsers and the Safari app use. Run `python3 scripts/make_icons.py` (needs Pillow) to redraw them. |
+| `icons/`, `scripts/make_icons.py` | The extension icon at every size the browsers use, plus `app-icon-1024.png`, a square version for the Safari Mac app (macOS rounds app icons itself). Run `python3 scripts/make_icons.py` (needs Pillow) to redraw them. |
 | `safari/`, `scripts/build_safari.py` | Safari build only. `inject.js` loads `page.js` into the page, since Safari lacks `"world": "MAIN"`. `make_xcode_project.py` wraps the build in an Xcode project with matching bundle IDs. |
 
 Instagram changes the block mutation's `doc_id` from time to time. The extension ships with
