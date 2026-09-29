@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Instagram: Block the Blocker",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Block an Instagram account that has already blocked you, from your own logged-in session.",
   "icons": {
     "16": "icons/icon-16.png",
