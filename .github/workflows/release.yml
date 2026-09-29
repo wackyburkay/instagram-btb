@@ -57,6 +57,8 @@ jobs:
           grep -rq 'extensionBundleIdentifier = "com.wackyburkay.instagram-btb.Extension"' \
             --include='*.swift' dist/safari-xcode \
             || { echo "::error::App code doesn't reference the extension's bundle ID"; exit 1; }
+          # Show the app icon slots, which make_xcode_project.py fills with the square icon.
+          find dist/safari-xcode -name Contents.json -path '*AppIcon.appiconset*' -exec cat {} \;
 
       - name: Build app
         run: |
