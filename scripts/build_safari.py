@@ -7,7 +7,8 @@ the page with a <script> tag. Everything else is shared with the other browsers.
 
 Usage:
     python3 scripts/build_safari.py            # writes dist/safari/
-    python3 scripts/build_safari.py --xcode    # also creates the Xcode project (macOS)
+    python3 scripts/build_safari.py --xcode    # also creates and opens the Xcode project (macOS)
+    python3 scripts/build_safari.py --package  # writes dist/safari-package/ for the release zip
 """
 
 import argparse
@@ -20,6 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "dist" / "safari"
 XCODE_OUT = ROOT / "dist" / "safari-xcode"
+PACKAGE_OUT = ROOT / "dist" / "safari-package"
 INSTAGRAM = "https://www.instagram.com/*"
 
 
@@ -56,29 +58,30 @@ def build():
     print(f"Safari extension written to {OUT.relative_to(ROOT).as_posix()}/")
 
 
+def package():
+    """Release layout: extension/ plus the script that turns it into an Xcode project."""
+    if PACKAGE_OUT.exists():
+        shutil.rmtree(PACKAGE_OUT)
+    shutil.copytree(OUT, PACKAGE_OUT / "extension")
+    shutil.copy2(ROOT / "safari" / "make_xcode_project.py", PACKAGE_OUT / "make_xcode_project.py")
+    print(f"Release package written to {PACKAGE_OUT.relative_to(ROOT).as_posix()}/")
+
+
 def xcode():
-    if sys.platform != "darwin":
-        sys.exit("--xcode needs macOS with Xcode installed")
+    # Shared with the release package, which runs it on its own.
     subprocess.run(
-        [
-            "xcrun", "safari-web-extension-converter", str(OUT),
-            "--project-location", str(XCODE_OUT),
-            "--app-name", "Block the Blocker",
-            "--bundle-identifier", "com.wackyburkay.instagram-btb",
-            "--macos-only",
-            "--copy-resources",
-            "--no-prompt",
-            "--force",
-        ],
+        [sys.executable, str(ROOT / "safari" / "make_xcode_project.py"), str(OUT), "--output", str(XCODE_OUT)],
         check=True,
     )
-    print(f"Xcode project written to {XCODE_OUT.relative_to(ROOT).as_posix()}/")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--xcode", action="store_true", help="also create the Xcode project (macOS only)")
+    parser.add_argument("--package", action="store_true", help="also lay out the release package")
     args = parser.parse_args()
     build()
+    if args.package:
+        package()
     if args.xcode:
         xcode()
