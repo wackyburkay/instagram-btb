@@ -19,7 +19,7 @@ Pick one of the two options below.
 2. Under **Assets**, download the file for your browser:
    - `instagram-btb-<version>.zip` for Chrome, Edge, Brave and Opera
    - `instagram-btb-<version>.xpi` for Firefox, Floorp and other Firefox-based browsers
-   - `instagram-btb-<version>-safari.zip` for Safari
+   - `instagram-btb-<version>-safari-app.zip` for Safari
 3. Follow the steps for your browser below.
 
 **Chrome, Edge, Brave**
@@ -62,18 +62,26 @@ Instagram's image servers and are only used to show profile pictures in the popu
 
 **Safari (macOS)**
 
-Safari only loads extensions that are wrapped in a Mac app, so this needs
-[Xcode](https://apps.apple.com/app/xcode/id497799835) (free from the App Store).
+Safari extensions come inside a small Mac app. It isn't signed by Apple, so macOS and Safari
+both ask you to allow it once.
 
-1. Extract `instagram-btb-<version>-safari.zip` to a folder.
-2. In Terminal, run the included script from that folder to create the Xcode project:
-   ```sh
-   cd ~/Downloads/instagram-btb-<version>-safari
-   python3 make_xcode_project.py
-   ```
-   Replace the path with wherever you extracted the zip. The script creates the project in
-   `xcode/` and opens it in Xcode.
-3. Follow **Building and enabling it in Safari** under Option 2 below, from step 2.
+1. Double-click `instagram-btb-<version>-safari-app.zip` to extract **Block the Blocker.app**,
+   and move it to your **Applications** folder.
+2. Open the app. macOS blocks it the first time because it isn't from an identified
+   developer. Click **Done**, go to **System Settings > Privacy & Security**, scroll down to
+   the message about Block the Blocker, click **Open Anyway**, and confirm. You can close the
+   app once it opens.
+3. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
+4. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
+   every time it quits, so repeat this step after restarting Safari.
+5. In **Settings > Extensions**, turn on **Block the Blocker**.
+6. Open instagram.com, click the extension's icon in the toolbar, and choose
+   **Always Allow on This Website**.
+
+If you'd rather build the app yourself with Xcode, download
+`instagram-btb-<version>-safari.zip` instead, extract it, and run
+`python3 make_xcode_project.py` in that folder. It creates the Xcode project and opens it.
+Then follow **Building and enabling it in Safari** under Option 2 below, from step 2.
 
 </details>
 
@@ -210,8 +218,10 @@ required), which is why step 3 reads the page instead.
 
 Pushing a tag like `v0.1.0` runs [.github/workflows/release.yml](.github/workflows/release.yml),
 which packages `manifest.json`, `src/` and `popup/` and publishes them as a GitHub release
-with a `.zip` and an identical `.xpi`, plus the Safari build as `-safari.zip`. The tag has
-to match `version` in `manifest.json`.
+with a `.zip` and an identical `.xpi`, plus the Safari build as `-safari.zip`. A macOS runner
+also builds the Safari app with Xcode, signed ad hoc ("Sign to Run Locally"), and attaches
+it as `-safari-app.zip`. The tag has to match `version` in `manifest.json`. Pull requests
+run the same builds without publishing anything.
 
 To build the same package locally:
 
