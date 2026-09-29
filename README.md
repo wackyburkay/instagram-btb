@@ -67,10 +67,20 @@ both ask you to allow it once.
 
 1. Double-click `instagram-btb-<version>-safari-app.zip` to extract **Block the Blocker.app**,
    and move it to your **Applications** folder.
-2. Open the app. macOS blocks it the first time because it isn't from an identified
-   developer. Click **Done**, go to **System Settings > Privacy & Security**, scroll down to
-   the message about Block the Blocker, click **Open Anyway**, and confirm. You can close the
-   app once it opens.
+2. Open the app. The first time, macOS says *"Apple could not verify 'Block the Blocker' is
+   free of malware..."*. That's expected: the app isn't notarized, because that needs a paid
+   Apple developer account. To allow it:
+   1. Click **Done**.
+   2. Go to **System Settings > Privacy & Security** and scroll down to **Security**.
+   3. Next to the message about Block the Blocker, click **Open Anyway**, confirm, and enter
+      your password if asked. The button only shows for about an hour after you tried to
+      open the app.
+
+   Alternatively, run this in Terminal, then open the app normally:
+   ```sh
+   xattr -dr com.apple.quarantine "/Applications/Block the Blocker.app"
+   ```
+   You can close the app once it opens.
 3. In Safari, open **Settings > Advanced** and turn on **Show features for web developers**.
 4. In the menu bar, choose **Develop > Allow Unsigned Extensions**. Safari turns this off
    every time it quits, so repeat this step after restarting Safari.
