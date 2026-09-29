@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Block the Blocker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Block the Blocker</h1>
+    <p id="session" class="muted">Checking Instagram tab…</p>
+  </header>
+
+  <main id="app" hidden>
+    <form id="lookup-form">
+      <label for="query">Username or numeric user ID</label>
+      <div class="row">
+        <input id="query" name="query" autocomplete="off" spellcheck="false" placeholder="@username or 1234567890" required>
+        <button type="submit" id="lookup-btn">Find</button>
+      </div>
+    </form>
+
+    <section id="manual" hidden>
+      <p>Couldn't find this account, even on its logged-out profile page. Check the spelling. If it's right, enter the numeric user ID above instead.</p>
+    </section>
+
+    <details id="id-help">
+      <summary>How do I find someone's user ID?</summary>
+      <ol>
+        <li>Open a private window: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> in Floorp or Firefox, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> in Edge or Chrome.</li>
+        <li>Go to <code id="help-url">instagram.com/<i>username</i>/</code>. You don't need to log in or close the cookie prompt.</li>
+        <li>Press <kbd>Ctrl</kbd>+<kbd>U</kbd> to view the page source.</li>
+        <li>Press <kbd>Ctrl</kbd>+<kbd>F</kbd> and search for <code>profile_id</code>. The number after it is the ID, for example <code>"profile_id":"25025320"</code>.</li>
+        <li>Paste that number into the box above and click <b>Find</b>.</li>
+      </ol>
+      <p class="muted">Alternatively, a lookup site such as <a href="https://commentpicker.com/instagram-user-id.php" target="_blank" rel="noopener noreferrer">commentpicker.com</a> can find the ID from the username. Using external websites sends the username to those sites.</p>
+    </details>
+
+    <section id="confirm" hidden>
+      <div class="card">
+        <img id="target-pic" alt="" referrerpolicy="no-referrer" hidden>
+        <div id="target-initial" class="avatar-fallback" aria-hidden="true" hidden></div>
+        <div>
+          <div id="target-name"></div>
+          <div id="target-id" class="muted"></div>
+          <div id="blocked-badge" class="badge" hidden></div>
+        </div>
+      </div>
+      <button id="block-btn" class="danger">Block this account</button>
+    </section>
+
+    <details id="attempts" hidden>
+      <summary class="muted">Lookup details</summary>
+      <ul id="attempt-list" class="muted"></ul>
+    </details>
+  </main>
+
+  <p id="message" role="status"></p>
+
+  <footer class="muted" id="diag"></footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
